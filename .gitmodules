@@ -1,3 +1,6 @@
 [submodule "site-packages/hx711"]
 	path = site-packages/hx711
 	url = https://github.com/tatobari/hx711py.git
+[submodule "fonts/noto-cjk"]
+	path = fonts/noto-cjk
+	url = https://github.com/googlefonts/noto-cjk.git
