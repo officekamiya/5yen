@@ -1,0 +1,21 @@
+LayoutAdd:
+
+<LayoutAdd>:
+
+    id: addweight
+
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.size
+
+        Label:
+            id: label1
+            font_size: 68
+            text: str(round(addweight.weight))+' g' 
+        Button:
+            text: "風袋"
+            on_press:addweight.ButtonTare()
+        Button:
+            id: buttonExit
+            text: "閉じる"
+            on_press: addweight.ButtonExit()
