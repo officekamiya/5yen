@@ -16,4 +16,4 @@ pip install --upgrade -t ./site-packages/ kivy
 
 ## It is Python Script for HX711
 
-git clone https://github.com/tatobari/hx711py.git ./site-packages/hx711
+git submodule add https://github.com/tatobari/hx711py.git ./site-packages/hx711
