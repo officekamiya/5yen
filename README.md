@@ -13,3 +13,7 @@ pip install --upgrade -t ./site-packages/ Cython
 pip install --upgrade -t ./site-packages/ pillow
 
 pip install --upgrade -t ./site-packages/ kivy
+
+## It is Python Script for HX711
+
+git clone https://github.com/tatobari/hx711py.git ./site-packages/hx711
