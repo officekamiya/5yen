@@ -11,3 +11,5 @@ pip install --upgrade -t ./site-packages/ numpy
 pip install --upgrade -t ./site-packages/ Cython
 
 pip install --upgrade -t ./site-packages/ pillow
+
+pip install --upgrade -t ./site-packages/ kivy
