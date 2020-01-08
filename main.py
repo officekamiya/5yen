@@ -75,6 +75,7 @@ class LayoutAdd(BoxLayout):
     def ButtonTare(self):
         hx.reset()
         hx.tare(19)
+        os.system("aplay --quiet './sounds/la.wav'")
 
     def ButtonExit(self):
         CommonValue.flugloop = False
