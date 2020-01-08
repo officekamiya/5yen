@@ -1,14 +1,20 @@
 import time
 import os
 import sys
+
+#For get the pip packeges in project directory.
 sys.path.append(os.path.join(os.path.dirname(__file__), 'site-packages'))
 
-#For Multi Thread
+#Import For Multi Thread
 import concurrent.futures
 
+#Import for Raspberry Pi
 import RPi.GPIO as GPIO
+
+#Import for HX711
 from hx711 import hx711
 
+#Configuration for window size
 from kivy.config import Config
 Config.set('graphics', 'width', '640')
 Config.set('graphics', 'height', '480')
@@ -19,14 +25,13 @@ from kivy.uix.label import Label
 from kivy.properties import NumericProperty
 from kivy.clock import Clock
 
+#Import for Japanese Font
 from kivy.core.text import LabelBase, DEFAULT_FONT
 from kivy.resources import resource_add_path
-
-#Japanese Font Add
 resource_add_path('./fonts')
-LabelBase.register(DEFAULT_FONT, 'NotoSansCJKjp-Regular.otf')
+LabelBase.register(DEFAULT_FONT, 'noto-cjk/NotoSansJP-Regular.otf')
 
-#Preference HX711
+#Preference for HX711
 hx = hx711.HX711(5, 6)
 hx.set_reading_format("MSB", "MSB")
 hx.set_reference_unit(81)
@@ -35,9 +40,9 @@ hx.tare(79)
 
 print("Tare done! Add weight now...")
 
+# Like global value
 class CommonValue():
     flugloop = True
-    weight = 0
 
 def FromHx711():
     CommonValue.flugloop = True
@@ -51,11 +56,6 @@ def FromHx711():
     GPIO.cleanup()
     print("Bye!")
     sys.exit()
-
-#def ThreadStop():
-#    input()
-#    CommonValue.flugloop = False
-
 
 class LayoutAdd(BoxLayout):
     weight = NumericProperty(0)
@@ -87,5 +87,4 @@ class MainApp(App):
 if __name__ == '__main__':
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
     executor.submit(FromHx711)
-#    executor.submit(ThreadStop)
     MainApp().run()
