@@ -15,10 +15,11 @@ import RPi.GPIO as GPIO
 from hx711 import hx711
 
 #Setup for full screen
+#Important set the small window size then full full screen.
 from kivy.config import Config
-from kivy.core.window import Window
 Config.set('graphics', 'width', '640')
 Config.set('graphics', 'height', '400')
+from kivy.core.window import Window
 Window.fullscreen = True
 
 from kivy.app import App
