@@ -46,20 +46,34 @@ print("Tare done! Add weight now...")
 #Like the global value
 class CommonValue():
     flugloop = True
+    flugtare = False
     weight = 0
 
 #Get the weight from HX711
 def WeightGet():
     CommonValue.flugloop = True
+
     while CommonValue.flugloop:
-        CommonValue.weight = hx.get_weight(79)
-        hx.power_down()
-        hx.power_up()
-        time.sleep(0.01)
-        print(CommonValue.weight)
+
+        if CommonValue.flugtare == True:
+            hx.reset()
+            hx.tare(39)
+            print("tared")
+            CommonValue.flugtare = False
+
+        else:
+            CommonValue.weight = hx.get_weight(79)
+            hx.power_down()
+            hx.power_up()
+            time.sleep(0.01)
+            print(CommonValue.weight)
+
     print("Cleaning and Exit")
     GPIO.cleanup()
     sys.exit()
+
+def SoundTare():
+    os.system("aplay --quiet './sounds/Hard_Tech_Bass_A4.wav'")
 
 
 class LayoutAdd(BoxLayout):
@@ -73,9 +87,8 @@ class LayoutAdd(BoxLayout):
         self.weight = CommonValue.weight
 
     def ButtonTare(self):
-        hx.reset()
-        hx.tare(19)
-        os.system("aplay --quiet './sounds/la.wav'")
+        CommonValue.flugtare = True
+        executor.submit(SoundTare)
 
     def ButtonExit(self):
         CommonValue.flugloop = False
