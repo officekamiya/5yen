@@ -14,10 +14,12 @@ import RPi.GPIO as GPIO
 #Import for HX711
 from hx711 import hx711
 
-#Configuration for window size
+#Setup for full screen
 from kivy.config import Config
+from kivy.core.window import Window
 Config.set('graphics', 'width', '640')
-Config.set('graphics', 'height', '480')
+Config.set('graphics', 'height', '400')
+Window.fullscreen = True
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
