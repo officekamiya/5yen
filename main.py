@@ -40,11 +40,13 @@ hx.tare(79)
 
 print("Tare done! Add weight now...")
 
-# Like global value
+#Like the global value
 class CommonValue():
     flugloop = True
+    weight = 0
 
-def FromHx711():
+#Get the weight from HX711
+def WeightGet():
     CommonValue.flugloop = True
     while CommonValue.flugloop:
         CommonValue.weight = hx.get_weight(79)
@@ -52,10 +54,10 @@ def FromHx711():
         hx.power_up()
         time.sleep(0.01)
         print(CommonValue.weight)
-    print("Cleaning...")
+    print("Cleaning and Exit")
     GPIO.cleanup()
-    print("Bye!")
     sys.exit()
+
 
 class LayoutAdd(BoxLayout):
     weight = NumericProperty(0)
@@ -75,7 +77,6 @@ class LayoutAdd(BoxLayout):
         CommonValue.flugloop = False
         App.get_running_app().stop()
 
-
 class MainApp(App):
     def __init__(self, **kwargs):
         super(MainApp, self).__init__(**kwargs)
@@ -86,5 +87,5 @@ class MainApp(App):
 
 if __name__ == '__main__':
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
-    executor.submit(FromHx711)
+    executor.submit(WeightGet)
     MainApp().run()
