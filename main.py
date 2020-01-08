@@ -48,9 +48,18 @@ class CommonValue():
     flagloop = True
     flagtare = False
     weight = 0
+    listweight = [0]
+
+def SoundTare():
+    os.system("aplay --quiet './sounds/Hard_Tech_Bass_A4.wav'")
+
+def WeightGet():
+    CommonValue.listweight.append(hx.get_weight(7))
+    hx.reset()
+    time.sleep(0.01)
 
 #Get the weight from HX711
-def WeightGet():
+def WeightCalc():
     CommonValue.flagloop = True
 
     while CommonValue.flagloop:
@@ -58,23 +67,24 @@ def WeightGet():
         if CommonValue.flagtare == True:
             hx.reset()
             hx.tare(39)
-            print("tared")
+            del CommonValue.listweight[0:]
+            CommonValue.weight = 0
             CommonValue.flagtare = False
+            print("tared")
 
         else:
-            CommonValue.weight = hx.get_weight(79)
-            hx.power_down()
-            hx.power_up()
-            time.sleep(0.01)
-            print(CommonValue.weight)
+            if len(CommonValue.listweight) <= 10:
+                WeightGet()
+
+            else:
+                del CommonValue.listweight[0]
+                WeightGet()
+                CommonValue.weight = sum(CommonValue.listweight) / len(CommonValue.listweight)
+                print(CommonValue.weight)
 
     print("Cleaning and Exit")
     GPIO.cleanup()
     sys.exit()
-
-def SoundTare():
-    os.system("aplay --quiet './sounds/Hard_Tech_Bass_A4.wav'")
-
 
 class LayoutAdd(BoxLayout):
     weight = NumericProperty(0)
@@ -104,5 +114,5 @@ class MainApp(App):
 
 if __name__ == '__main__':
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
-    executor.submit(WeightGet)
+    executor.submit(WeightCalc)
     MainApp().run()
