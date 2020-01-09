@@ -10,12 +10,12 @@ LayoutAdd:
 
         Label:
             id: label1
-            size_hint_y: 0.8
-            font_size: 68
-            text: str(round(addweight.weight))+' g'
-
+            size_hint_y: 0.85
+            font_size: 120
+#            text: str(round(addweight.weight))+' g'
+            text: '{:,.0f}'.format(addweight.weight) + ' g'
         BoxLayout:
-            size_hint_y: 0.2
+            size_hint_y: 0.15
 
             orientation: 'horizontal'
             size: self.size
@@ -23,9 +23,11 @@ LayoutAdd:
             Button:
                 text: "風袋"
                 size_hint_x: 1
+                font_size: 30
                 on_press:addweight.ButtonTare()
             Button:
                 id: buttonExit
                 text: "閉じる"
                 size_hint_x: 1
+                font_size: 30
                 on_press: addweight.ButtonExit()
