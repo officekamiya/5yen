@@ -43,7 +43,7 @@ hx.tare(79)
 
 print("Tare done! Add weight now...")
 
-#Like the global value
+#Like the common value
 class CV():
     flagloop = True
     flagtare = False
