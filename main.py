@@ -44,7 +44,7 @@ hx.tare(79)
 print("Tare done! Add weight now...")
 
 #Like the global value
-class CommonValue():
+class CV():
     flagloop = True
     flagtare = False
     weight = 0
@@ -54,33 +54,34 @@ def SoundTare():
     os.system("aplay --quiet './sounds/Hard_Tech_Bass_A4.wav'")
 
 def WeightGet():
-    CommonValue.listweight.append(hx.get_weight(7))
+    CV.listweight.append(hx.get_weight(7))
     hx.reset()
     time.sleep(0.01)
 
 #Get the weight from HX711
 def WeightCalc():
-    CommonValue.flagloop = True
+    CV.flagloop = True
 
-    while CommonValue.flagloop:
+    while CV.flagloop:
 
-        if CommonValue.flagtare == True:
+        if CV.flagtare == True:
             hx.reset()
             hx.tare(39)
-            del CommonValue.listweight[0:]
-            CommonValue.weight = 0
-            CommonValue.flagtare = False
+            del CV.listweight[0:]
+            CV.weight = 0
+            CV.flagtare = False
             print("tared")
 
         else:
-            if len(CommonValue.listweight) <= 10:
+            if len(CV.listweight) <= 10:
                 WeightGet()
 
             else:
-                del CommonValue.listweight[0]
+                del CV.listweight[0]
                 WeightGet()
-                CommonValue.weight = sum(CommonValue.listweight) / len(CommonValue.listweight)
-                print(CommonValue.weight)
+                CV.weight = sum(CV.listweight) / len(CV.listweight)
+
+                print(CV.weight)
 
     print("Cleaning and Exit")
     GPIO.cleanup()
@@ -94,14 +95,14 @@ class LayoutAdd(BoxLayout):
         Clock.schedule_interval(self.LabelWeight, 0.1)
 
     def LabelWeight(self, dt):
-        self.weight = CommonValue.weight
+        self.weight = CV.weight
 
     def ButtonTare(self):
-        CommonValue.flagtare = True
+        CV.flagtare = True
         executor.submit(SoundTare)
 
     def ButtonExit(self):
-        CommonValue.flagloop = False
+        CV.flagloop = False
         App.get_running_app().stop()
 
 class MainApp(App):
