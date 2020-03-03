@@ -1,6 +1,7 @@
 import time
 import os
 import sys
+import statistics
 
 #For get the pip packeges in project directory.
 sys.path.append(os.path.join(os.path.dirname(__file__), 'site-packages'))
@@ -19,8 +20,8 @@ from hx711 import hx711
 from kivy.config import Config
 Config.set('graphics', 'width', '640')
 Config.set('graphics', 'height', '400')
-#from kivy.core.window import Window
-#Window.fullscreen = True
+from kivy.core.window import Window
+Window.fullscreen = True
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -35,9 +36,9 @@ resource_add_path('./fonts')
 LabelBase.register(DEFAULT_FONT, 'noto-cjk/NotoSansJP-Regular.otf')
 
 #Preference for HX711
-hx = hx711.HX711(5, 6)
+hx = hx711.HX711(23, 24)
 hx.set_reading_format("MSB", "MSB")
-hx.set_reference_unit(81)
+hx.set_reference_unit(114)
 hx.reset()
 hx.tare(79)
 
@@ -52,25 +53,67 @@ class CV():
     dispweight = 0
     currweight = 0
     prevweight = 0
+    diffweight = 0
+    sum1weight = 0
+    sum2weight = 0
     saveweight = [0]
 
 def SoundTare():
     os.system("aplay --quiet './sounds/Hard_Tech_Bass_A4.wav'")
 
+def SoundSize6S():
+    os.system("mpg321 --quiet './sounds/SoundSize6S.mp3'")
+
+def SoundSize5S():
+    os.system("mpg321 --quiet './sounds/SoundSize5S.mp3'")
+
+def SoundSize4S():
+    os.system("mpg321 --quiet './sounds/SoundSize4S.mp3'")
+
+def SoundSize3S():
+    os.system("mpg321 --quiet './sounds/SoundSize3S.mp3'")
+
+def SoundSize2S():
+    os.system("mpg321 --quiet './sounds/SoundSize2S.mp3'")
+
+def SoundSizeS():
+    os.system("mpg321 --quiet './sounds/SoundSizeS.mp3'")
+
+def SoundSizeM():
+    os.system("mpg321 --quiet './sounds/SoundSizeM.mp3'")
+
+def SoundSizeL():
+    os.system("mpg321 --quiet './sounds/SoundSizeL.mp3'")
+
+def SoundSize2L():
+    os.system("mpg321 --quiet './sounds/SoundSize2L.mp3'")
+
+def SoundSize3L():
+    os.system("mpg321 --quiet './sounds/SoundSize3L.mp3'")
+
+def SoundSize4L():
+    os.system("mpg321 --quiet './sounds/SoundSize4L.mp3'")
+
+def SoundSize5L():
+    os.system("mpg321 --quiet './sounds/SoundSize5L.mp3'")
+
+def SoundSize6L():
+    os.system("mpg321 --quiet './sounds/SoundSize6L.mp3'")
+
 def SoundStable():
     if CV.stableflag == True:
+        CV.stableflag = False
         os.system("aplay --quiet './sounds/Hard_Tech_Bass_A4.wav'")
         print("sound play")
-        CV.stableflag = False
 
 
 def GetWeight():
-    CV.saveweight.append(hx.get_weight(7))
+    CV.saveweight.append(hx.get_weight(5))
     hx.reset()
-    time.sleep(0.1)
-    print(CV.saveweight)
-    if len(CV.saveweight) > 5:
+    time.sleep(0.01)
+    if len(CV.saveweight) > 15:
         del CV.saveweight[0]
+    print(CV.saveweight)
 
 #Get the weight from HX711
 def CalcWeight():
@@ -88,7 +131,12 @@ def CalcWeight():
 
         else:
             GetWeight()
-            CV.currweight = sum(CV.saveweight) / len(CV.saveweight)
+            midweight = statistics.median(CV.saveweight)
+            goodweight = [e for e in CV.saveweight if -2 < midweight - e < 2 ]
+            CV.currweight = statistics.mean(goodweight)
+#            CV.currweight = statistics.mean(CV.saveweight)
+            print(midweight)
+            print(goodweight)
             print(CV.currweight)
 
             if CV.currweight < 2:
@@ -97,8 +145,37 @@ def CalcWeight():
                 print("around 0")
 
             elif CV.currweight < CV.prevweight + 2 and CV.currweight > CV.prevweight - 2:
-                executor.submit(SoundStable)
                 CV.dispweight = CV.prevweight
+                CV.sum2weight = CV.prevweight
+                CV.diffweight = CV.sum1weight - CV.sum2weight
+                if CV.diffweight > 150:
+                    CV.stableflag = False
+                    executor.submit(SoundSize3L)
+                elif CV.diffweight >= 111 and CV.diffweight < 150:
+                    CV.stableflag = False
+                    executor.submit(SoundSize2L)
+                elif CV.diffweight >= 95 and CV.diffweight < 111:
+                    CV.stableflag = False
+                    executor.submit(SoundSizeL)
+                elif CV.diffweight >= 80 and CV.diffweight < 95:
+                    CV.stableflag = False
+                    executor.submit(SoundSizeM)
+                elif CV.diffweight >= 65 and CV.diffweight < 80:
+                    CV.stableflag = False
+                    executor.submit(SoundSizeS)
+                elif CV.diffweight >= 55 and CV.diffweight < 65:
+                    CV.stableflag = False
+                    executor.submit(SoundSize2S)
+                elif CV.diffweight > 0 and CV.diffweight < 55:
+                    CV.stableflag = False
+                elif CV.diffweight <= 0:
+                    print("zero")
+#                    executor.submit(SoundStable)
+
+                else:
+                    print("other")
+                CV.sum1weight = CV.sum2weight
+
                 print("stable")
 
             else:
@@ -138,6 +215,6 @@ class MainApp(App):
         return LayoutAdd()
 
 if __name__ == '__main__':
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
     executor.submit(CalcWeight)
     MainApp().run()
