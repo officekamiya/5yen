@@ -18,10 +18,10 @@ from hx711 import hx711
 #Setup for full screen
 #Important set the small window size then full full screen.
 from kivy.config import Config
-Config.set('graphics', 'width', '640')
-Config.set('graphics', 'height', '400')
+Config.set('graphics', 'width', '1200')
+Config.set('graphics', 'height', '900')
 from kivy.core.window import Window
-Window.fullscreen = True
+#Window.fullscreen = True
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -38,7 +38,7 @@ LabelBase.register(DEFAULT_FONT, 'noto-cjk/NotoSansJP-Regular.otf')
 #Preference for HX711
 hx = hx711.HX711(23, 24)
 hx.set_reading_format("MSB", "MSB")
-hx.set_reference_unit(114)
+hx.set_reference_unit(111.5)
 hx.reset()
 hx.tare(79)
 
@@ -101,17 +101,15 @@ def SoundSize6L():
     os.system("mpg321 --quiet './sounds/SoundSize6L.mp3'")
 
 def SoundStable():
-    if CV.stableflag == True:
-        CV.stableflag = False
-        os.system("aplay --quiet './sounds/Hard_Tech_Bass_A4.wav'")
-        print("sound play")
+     os.system("aplay --quiet './sounds/Hard_Tech_Bass_A4.wav'")
+     print("sound play")
 
 
 def GetWeight():
     CV.saveweight.append(hx.get_weight(5))
     hx.reset()
-    time.sleep(0.01)
-    if len(CV.saveweight) > 15:
+    time.sleep(0.001)
+    if len(CV.saveweight) > 9:
         del CV.saveweight[0]
     print(CV.saveweight)
 
@@ -134,17 +132,19 @@ def CalcWeight():
             midweight = statistics.median(CV.saveweight)
             goodweight = [e for e in CV.saveweight if -2 < midweight - e < 2 ]
             CV.currweight = statistics.mean(goodweight)
-#            CV.currweight = statistics.mean(CV.saveweight)
+            print("Mid")
             print(midweight)
+            print("+-2")
             print(goodweight)
+            print("Weight")
             print(CV.currweight)
 
-            if CV.currweight < 2:
-                executor.submit(SoundStable)
+            if -2 < CV.currweight < 2:
+#                executor.submit(SoundStable)
                 CV.dispweight = 0
                 print("around 0")
 
-            elif CV.currweight < CV.prevweight + 2 and CV.currweight > CV.prevweight - 2:
+            elif CV.currweight < CV.prevweight + 1 and CV.currweight > CV.prevweight - 1:
                 CV.dispweight = CV.prevweight
                 CV.sum2weight = CV.prevweight
                 CV.diffweight = CV.sum1weight - CV.sum2weight
@@ -166,17 +166,21 @@ def CalcWeight():
                 elif CV.diffweight >= 55 and CV.diffweight < 65:
                     CV.stableflag = False
                     executor.submit(SoundSize2S)
-                elif CV.diffweight > 0 and CV.diffweight < 55:
+                elif CV.diffweight > 10 and CV.diffweight < 55:
                     CV.stableflag = False
-                elif CV.diffweight <= 0:
-                    print("zero")
-#                    executor.submit(SoundStable)
+                    executor.submit(SoundSize3S)
+                elif CV.diffweight >= -10 and CV.diffweight < 10:
+                    CV.stableflag = False
+                    print("same weight")
+                elif CV.diffweight < -10:
+                    CV.stableflag = False
+                    executor.submit(SoundStable)
+                #elif CV.diffweight <= 0:
+                    #print("zero")
 
                 else:
                     print("other")
                 CV.sum1weight = CV.sum2weight
-
-                print("stable")
 
             else:
                 CV.dispweight = CV.currweight
